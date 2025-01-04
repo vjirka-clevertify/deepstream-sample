@@ -1,0 +1,17 @@
+[property]
+gpu-id=0
+net-scale-factor=0.00392156862745098
+offsets=0.0;0.0;0.0
+infer-dims=3;544;960
+tlt-model-key=tlt_encode
+model-engine-file=trafficcamnet.engine
+labelfile-path=labels_trafficcamnet.txt
+batch-size=1
+network-mode=2
+num-detected-classes=4
+model-color-format=0
+maintain-aspect-ratio=0
+output-tensor-meta=1
+network-type=0
+process-mode=1
+gie-unique-id=1
