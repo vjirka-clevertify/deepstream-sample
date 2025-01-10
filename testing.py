@@ -1,14 +1,14 @@
 import gi
 import sys
 import signal
-from gi.repository import Gst, GLib
 
 gi.require_version("Gst", "1.0")
+from gi.repository import Gst, GLib
+
 from utils import calculate_vehicle_speed
 
 pipeline = None
 loop = None
-
 
 def osd_sink_pad_buffer_probe(pad, info, u_data):
     """
@@ -37,7 +37,6 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
     return Gst.PadProbeReturn.OK
 
-
 def signal_handler(sig, frame):
     """
     Graceful shutdown on signal interrupt (Ctrl+C).
@@ -48,7 +47,6 @@ def signal_handler(sig, frame):
         pipeline.set_state(Gst.State.NULL)
     if loop:
         loop.quit()
-
 
 def main():
     global pipeline, loop
@@ -65,7 +63,12 @@ def main():
         print("Failed to create pipeline.")
         sys.exit(1)
 
-    osd_sink_pad = pipeline.get_by_name("nvtracker").get_static_pad("src")
+    nvtracker = pipeline.get_by_name("nvtracker")
+    if not nvtracker:
+        print("Failed to get nvtracker element from pipeline.")
+        sys.exit(1)
+
+    osd_sink_pad = nvtracker.get_static_pad("src")
     if osd_sink_pad:
         osd_sink_pad.add_probe(Gst.PadProbeType.BUFFER, osd_sink_pad_buffer_probe, 0)
 
@@ -81,7 +84,6 @@ def main():
         print(f"Error during execution: {e}")
     finally:
         pipeline.set_state(Gst.State.NULL)
-
 
 if __name__ == "__main__":
     main()
