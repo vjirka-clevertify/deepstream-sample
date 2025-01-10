@@ -56,14 +56,14 @@ def main():
     pipeline = Gst.parse_launch(
         "uridecodebin uri=file://video.mp4 ! "
         "nvvideoconvert ! nvinfer config-file-path=./config/source1_primary_detector.txt ! "
-        "nvtracker ! fakesink"
+        "nvtracker name=tracker ! fakesink"
     )
 
     if not pipeline:
         print("Failed to create pipeline.")
         sys.exit(1)
 
-    nvtracker = pipeline.get_by_name("nvtracker")
+    nvtracker = pipeline.get_by_name("tracker")
     if not nvtracker:
         print("Failed to get nvtracker element from pipeline.")
         sys.exit(1)
@@ -71,6 +71,8 @@ def main():
     osd_sink_pad = nvtracker.get_static_pad("src")
     if osd_sink_pad:
         osd_sink_pad.add_probe(Gst.PadProbeType.BUFFER, osd_sink_pad_buffer_probe, 0)
+    else:
+        print("Failed to get static pad 'src' from nvtracker.")
 
     loop = GLib.MainLoop()
 
