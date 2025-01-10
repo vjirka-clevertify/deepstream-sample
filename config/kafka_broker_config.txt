@@ -1,0 +1,4 @@
+bootstrap.servers=localhost:9092
+client.id=deepstream_client
+topic=vehicle_speeds
+log.level=1

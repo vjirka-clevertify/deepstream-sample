@@ -1,0 +1,23 @@
+[application]
+enable-perf-measurement=1
+perf-measurement-interval-sec=5
+
+[source0]
+uri=file://path_to_your_video.mp4
+type=4
+enable=1
+num-sources=1
+
+[primary-gie]
+config-file-path=./config/source1_primary_detector.txt
+batch-size=1
+enable=1
+
+[sink0]
+type=6
+sync=0
+msg-conv-config=./config/dstest_kafka_config.txt
+msg-broker-config=./config/kafka_broker_config.txt
+msg-conv-payload-type=0  # DeepStream schema payload
+msg-broker-proto-lib=/opt/nvidia/deepstream/deepstream/lib/libnvds_kafka_proto.so
+topic=vehicle_speeds

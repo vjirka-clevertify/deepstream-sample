@@ -1,0 +1,5 @@
+[message-converter]
+schema-type=0
+enable-raw-message=1
+msg2p-lib=/opt/nvidia/deepstream/deepstream/lib/libnvds_msgconv.so
+payload-type=0
