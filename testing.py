@@ -1,6 +1,7 @@
 import gi
 import sys
 import signal
+import pyds
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst, GLib
@@ -14,15 +15,27 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
     """
     Probe function to process metadata from inference results.
     """
-    batch_meta = Gst.NvDsBatchMeta.cast(info.get_buffer().meta)
+    frame_number = 0
+    gst_buffer = info.get_buffer()
+    if not gst_buffer:
+        print("Unable to get GstBuffer")
+        return Gst.PadProbeReturn.OK
+
+    batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
     l_frame = batch_meta.frame_meta_list
 
     while l_frame is not None:
-        frame_meta = l_frame.data
-        l_obj = frame_meta.obj_meta_list
+        try:
+            frame_meta = pyds.NvDsFrameMeta.cast(l_frame.data)
+        except StopIteration:
+            break
 
+        l_obj = frame_meta.obj_meta_list
         while l_obj is not None:
-            obj_meta = l_obj.data
+            try:
+                obj_meta = pyds.NvDsObjectMeta.cast(l_obj.data)
+            except StopIteration:
+                break
 
             vehicle_id = obj_meta.object_id
             position = (obj_meta.tracker_bbox_info.org_bbox_coords.left, obj_meta.tracker_bbox_info.org_bbox_coords.top)
@@ -31,9 +44,15 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
             speed = calculate_vehicle_speed(vehicle_id, position, timestamp)
             print(f"Vehicle ID: {vehicle_id}, Speed: {speed:.2f} km/h")
 
-            l_obj = l_obj.next
+            try:
+                l_obj = l_obj.next
+            except StopIteration:
+                break
 
-        l_frame = l_frame.next
+        try:
+            l_frame = l_frame.next
+        except StopIteration:
+            break
 
     return Gst.PadProbeReturn.OK
 
