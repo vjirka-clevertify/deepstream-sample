@@ -78,14 +78,17 @@ def main():
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
     sink = Gst.ElementFactory.make("nveglglessink", "egl-output")
 
-    # Set properties
-    source.set_property('uri', 'file://video.mp4')
+    if not all([source, streammux, pgie, tracker, nvvidconv, nvosd, sink]):
+        sys.stderr.write(" One or more elements could not be created. Exiting.\n")
+        return -1
+
+    source.set_property('uri', 'file:///opt/nvidia/deepstream/deepstream-6.3/video.mp4')
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', 1)
     pgie.set_property('config-file-path', "config/config_infer_primary.txt")
+    tracker.set_property('ll-config-file', "config/tracker_config.txt")
 
-    # Add elements to pipeline
     pipeline.add(source)
     pipeline.add(streammux)
     pipeline.add(pgie)
@@ -94,33 +97,45 @@ def main():
     pipeline.add(nvosd)
     pipeline.add(sink)
 
-    # Link elements
     streammux.link(pgie)
     pgie.link(tracker)
     tracker.link(nvvidconv)
     nvvidconv.link(nvosd)
     nvosd.link(sink)
 
-    # Connect pad-added signal
     source.connect("pad-added", on_pad_added, streammux)
 
-    # Add probe
     vehicle_tracker = VehicleTracker()
     osdsinkpad = nvosd.get_static_pad("sink")
     osdsinkpad.add_probe(Gst.PadProbeType.BUFFER, osd_sink_pad_buffer_probe, vehicle_tracker)
 
-    # Start playing
+    print("Starting pipeline...")
     pipeline.set_state(Gst.State.PLAYING)
-    
-    # Main loop
+    print("Pipeline started.")
+
     loop = GLib.MainLoop()
-    
+    print("Entering main loop...")
     try:
         loop.run()
     except KeyboardInterrupt:
         pass
-    
+    print("Exiting main loop...")
     pipeline.set_state(Gst.State.NULL)
+    print("Pipeline stopped.")
+
+def on_pad_added(element, pad, data):
+    caps = pad.get_current_caps()
+    if not caps:
+        return
+    
+    str_name = caps.get_structure(0).get_name()
+    if str_name.startswith('video/'):
+        sinkpad = data.get_request_pad("sink_0")
+        if not pad.link(sinkpad) == Gst.PadLinkReturn.OK:
+            print("Failed to link video pad")
+
+if __name__ == '__main__':
+    sys.exit(main())
 
 def on_pad_added(element, pad, data):
     caps = pad.get_current_caps()
