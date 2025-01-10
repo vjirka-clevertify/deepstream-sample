@@ -56,7 +56,7 @@ def main():
     pipeline = Gst.parse_launch(
         "uridecodebin uri=file://video.mp4 ! "
         "nvvideoconvert ! nvinfer config-file-path=./config/source1_primary_detector.txt ! "
-        "nvtracker name=tracker ! fakesink"
+        "nvtracker name=tracker ll-config-file=./config/tracker_config.yml ! fakesink"
     )
 
     if not pipeline:

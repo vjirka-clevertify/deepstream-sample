@@ -1,0 +1,7 @@
+tracker-width: 960
+tracker-height: 544
+gpu-id: 0
+ll-lib-file: /usr/lib/x86_64-linux-gnu/gstreamer-1.0/deepstream/libnvds_mot_klt.so
+ll-config-file: /usr/lib/x86_64-linux-gnu/gstreamer-1.0/deepstream/config/nvds_mot_klt_config.yml
+enable-batch-process: 1
+enable-past-frame: 1
