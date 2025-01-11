@@ -36,13 +36,13 @@ chmod +x install_dependencies.sh
 ./install_dependencies.sh
 ```
 
-# start kafka
+# Start kafka
 
 ```bash
 docker-compose up -d
 ```
 
-# start deepstream
+# Start deepstream
 
 ```bash
 python3 main.py
@@ -54,7 +54,7 @@ or
 python3 testing.py
 ```
 
-# view kafka messages
+# View kafka messages
 
 ```bash
 docker exec -it kafka kafka-console-consumer.sh --topic vehicle_data --bootstrap-server localhost:9092
