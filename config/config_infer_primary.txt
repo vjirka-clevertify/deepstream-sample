@@ -3,6 +3,7 @@ gpu-id=0
 net-scale-factor=0.0039215697906911373
 model-engine-file=/opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/models/trafficcamnet.engine
 labelfile-path=/opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/models/labels.txt
+batch-size=1
 process-mode=1
 model-color-format=0
 network-mode=2
