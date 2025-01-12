@@ -20,5 +20,5 @@ roi-top-offset=0
 roi-bottom-offset=0
 detected-min-w=16
 detected-min-h=16
-detected-max-w=1920
-detected-max-h=1080
+detected-max-w=960
+detected-max-h=544
