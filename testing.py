@@ -215,7 +215,6 @@ def main():
     )
     streammux.set_property("width", 1920)
     streammux.set_property("height", 1080)
-    streammux.set_property("batch-size", 1)
     streammux.set_property("live-source", 0)
     streammux.set_property("nvbuf-memory-type", 0)
     streammux.set_property("frame-duration", 33333333)
