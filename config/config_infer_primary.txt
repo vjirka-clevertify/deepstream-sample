@@ -12,8 +12,7 @@ interval=0
 gie-unique-id=1
 cluster-mode=2
 maintain-aspect-ratio=1
-parse-bbox-func-name=NvDsInferParseCustomResnet
-custom-lib-path=/opt/nvidia/deepstream/deepstream-6.3/lib/libnvds_infercustomparser.so
+parse-bbox-func-name=NvDsInferParseDefault
 
 [class-attrs-all]
 pre-cluster-threshold=0.2

@@ -95,19 +95,26 @@ def setup_environment():
 def configure_tracker(tracker):
     DS_PATH = "/opt/nvidia/deepstream/deepstream-6.3"
     tracker_lib = f"{DS_PATH}/lib/libnvds_nvmultiobjecttracker.so"
+    tracker_config = f"{DS_PATH}/deepstream-sample/config/tracker_config.txt"
 
-    if not os.path.exists(tracker_lib):
-        raise RuntimeError(f"Tracker library not found: {tracker_lib}")
+    # Verify files exist and are readable
+    for file_path in [tracker_lib, tracker_config]:
+        if not os.path.exists(file_path):
+            raise RuntimeError(f"File not found: {file_path}")
+        if not os.access(file_path, os.R_OK):
+            raise RuntimeError(f"File not readable: {file_path}")
 
     try:
         tracker.set_property("ll-lib-file", tracker_lib)
-        tracker.set_property(
-            "ll-config-file",
-            f"{DS_PATH}/deepstream-sample/config/tracker_config.txt",
-        )
+        tracker.set_property("ll-config-file", os.path.abspath(tracker_config))
 
         print(f"Tracker configured with library: {tracker_lib}")
-        print("Tracker properties set successfully")
+        print(f"Using tracker config: {tracker_config}")
+
+        # Verify the property was set
+        config_path = tracker.get_property("ll-config-file")
+        if not config_path:
+            raise RuntimeError("Failed to set tracker config path")
 
     except Exception as e:
         raise RuntimeError(f"Failed to set tracker properties: {e}")
