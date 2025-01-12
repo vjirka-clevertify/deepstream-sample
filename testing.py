@@ -80,6 +80,27 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
     return Gst.PadProbeReturn.OK
 
 
+def get_state_name(state):
+    state_names = {
+        Gst.State.VOID_PENDING: "VOID_PENDING",
+        Gst.State.NULL: "NULL",
+        Gst.State.READY: "READY",
+        Gst.State.PAUSED: "PAUSED",
+        Gst.State.PLAYING: "PLAYING",
+    }
+    return state_names.get(state, "UNKNOWN")
+
+
+def get_state_change_return(ret):
+    return_names = {
+        Gst.StateChangeReturn.SUCCESS: "SUCCESS",
+        Gst.StateChangeReturn.FAILURE: "FAILURE",
+        Gst.StateChangeReturn.ASYNC: "ASYNC",
+        Gst.StateChangeReturn.NO_PREROLL: "NO_PREROLL",
+    }
+    return return_names.get(ret, "UNKNOWN")
+
+
 def main():
     Gst.init(None)
     pipeline = Gst.Pipeline()
@@ -164,8 +185,12 @@ def main():
         ]:
             state_return = element.get_state(0)
             print(
-                f"Element {element.get_name()}: State={state_return[1]}, "
-                f"Pending={state_return[2]}, Return={state_return[0]}"
+                f"Element {element.get_name()}:\n"
+                f"  Current State: {get_state_name(state_return[1])}\n"
+                f"  Pending State: {get_state_name(state_return[2])}\n"
+                f"  Return Status: \033[91m{get_state_change_return(state_return[0])}\033[0m"
+                if state_return[0] == Gst.StateChangeReturn.FAILURE
+                else f"  Return Status: {get_state_change_return(state_return[0])}"
             )
 
         return -1
