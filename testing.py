@@ -6,6 +6,7 @@ import gi
 import pyds
 import numpy as np
 from collections import defaultdict
+import os
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GObject, Gst, GLib
@@ -80,6 +81,30 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
     return Gst.PadProbeReturn.OK
 
 
+def setup_environment():
+    DS_PATH = "/opt/nvidia/deepstream/deepstream-6.3"
+    os.environ.update(
+        {
+            "GST_PLUGIN_PATH": f"{DS_PATH}/lib",
+            "LD_LIBRARY_PATH": f"{DS_PATH}/lib",
+            "PATH": f"{os.environ['PATH']}:/usr/local/cuda/bin",
+        }
+    )
+
+
+def configure_tracker(tracker):
+    DS_PATH = "/opt/nvidia/deepstream/deepstream-6.3"
+    tracker_lib = f"{DS_PATH}/lib/libnvds_nvmultiobjecttracker.so"
+
+    if not os.path.exists(tracker_lib):
+        raise RuntimeError(f"Tracker library not found: {tracker_lib}")
+
+    tracker.set_property("ll-lib-file", tracker_lib)
+    tracker.set_property("ll-config-file", "config/tracker_config.txt")
+    tracker.set_property("enable-batch-process", True)
+    tracker.set_property("enable-past-frame", 1)
+
+
 def get_state_name(state):
     state_names = {
         Gst.State.VOID_PENDING: "VOID_PENDING",
@@ -102,6 +127,7 @@ def get_state_change_return(ret):
 
 
 def main():
+    setup_environment()
     Gst.init(None)
     pipeline = Gst.Pipeline()
 
@@ -113,6 +139,12 @@ def main():
     nvvidconv = Gst.ElementFactory.make("nvvideoconvert", "converter")
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
     sink = Gst.ElementFactory.make("nveglglessink", "egl-output")
+
+    try:
+        configure_tracker(tracker)
+    except RuntimeError as e:
+        print(f"Failed to configure tracker: {e}")
+        return -1
 
     if not all([source, streammux, pgie, tracker, nvvidconv, nvosd, sink]):
         sys.stderr.write(

@@ -1,7 +1,6 @@
 tracker-width=1920
 tracker-height=1080
 gpu-id=0
-ll-lib-file=/opt/nvidia/deepstream/deepstream-6.3/lib/libnvds_mot_iou.so
 enable-batch-process=1
 
 [tracker-config]
