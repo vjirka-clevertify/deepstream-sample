@@ -7,7 +7,6 @@ batch-size=1
 process-mode=1
 model-color-format=0
 network-mode=2
-network-input-shape=1;3;1080;1920
 num-detected-classes=4
 interval=0
 gie-unique-id=1
