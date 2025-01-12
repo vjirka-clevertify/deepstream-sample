@@ -66,15 +66,39 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
             if obj_meta.object_id in tracker.speeds:
                 speed = tracker.speeds[obj_meta.object_id][-1]
-                display_text = (
-                    f"ID: {obj_meta.object_id} Speed: {speed:.1f} km/h"
+
+                # Create display meta for this frame
+                display_meta = pyds.nvds_acquire_display_meta_from_pool(
+                    batch_meta
                 )
-                py_nvosd_text_params = pyds.nvds_add_display_meta_to_frame(
-                    frame_meta,
-                    display_text,
-                    int(obj_meta.rect_params.left),
-                    int(obj_meta.rect_params.top - 10),
+                display_meta.num_labels = 1
+
+                # Configure text parameters
+                txt_params = display_meta.text_params[0]
+                txt_params.display_text = (
+                    f"ID:{obj_meta.object_id} {speed:.1f}km/h"
                 )
+                txt_params.x_offset = int(obj_meta.rect_params.left)
+                txt_params.y_offset = int(obj_meta.rect_params.top - 10)
+                txt_params.font_params.font_name = "Arial"
+                txt_params.font_params.font_size = 11
+                txt_params.font_params.font_color.set(1.0, 1.0, 0.0, 1.0)
+                txt_params.set_bg_clr = 1
+                txt_params.text_bg_clr.set(0.0, 0.0, 0.0, 0.7)
+
+                # Configure rectangle parameters
+                rect_params = display_meta.rect_params[0]
+                rect_params.left = obj_meta.rect_params.left
+                rect_params.top = obj_meta.rect_params.top
+                rect_params.width = obj_meta.rect_params.width
+                rect_params.height = obj_meta.rect_params.height
+                rect_params.border_width = 2
+                rect_params.border_color.set(1.0, 0.0, 0.0, 1.0)
+                display_meta.num_rects = 1
+
+                # Add display meta to frame
+                pyds.nvds_add_display_meta_to_frame(frame_meta, display_meta)
+
             l_obj = l_obj.next
         l_frame = l_frame.next
 
@@ -153,7 +177,13 @@ def main():
     tracker = Gst.ElementFactory.make("nvtracker", "tracker")
     nvvidconv = Gst.ElementFactory.make("nvvideoconvert", "converter")
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
-    sink = Gst.ElementFactory.make("nveglglessink", "egl-output")
+    encoder = Gst.ElementFactory.make("nvv4l2h264enc", "h264-encoder")
+    h264parse = Gst.ElementFactory.make("h264parse", "h264-parser")
+    qtmux = Gst.ElementFactory.make("qtmux", "muxer")
+    sink = Gst.ElementFactory.make("filesink", "file-output")
+
+    output_path = "output.mp4"
+    sink.set_property("location", output_path)
 
     try:
         configure_tracker(tracker)
@@ -161,7 +191,20 @@ def main():
         print(f"Failed to configure tracker: {e}")
         return -1
 
-    if not all([source, streammux, pgie, tracker, nvvidconv, nvosd, sink]):
+    if not all(
+        [
+            source,
+            streammux,
+            pgie,
+            tracker,
+            nvvidconv,
+            nvosd,
+            encoder,
+            h264parse,
+            qtmux,
+            sink,
+        ]
+    ):
         sys.stderr.write(
             " One or more elements could not be created. Exiting.\n"
         )
@@ -188,13 +231,19 @@ def main():
     pipeline.add(tracker)
     pipeline.add(nvvidconv)
     pipeline.add(nvosd)
+    pipeline.add(encoder)
+    pipeline.add(h264parse)
+    pipeline.add(qtmux)
     pipeline.add(sink)
 
     streammux.link(pgie)
     pgie.link(tracker)
     tracker.link(nvvidconv)
     nvvidconv.link(nvosd)
-    nvosd.link(sink)
+    nvosd.link(encoder)
+    encoder.link(h264parse)
+    h264parse.link(qtmux)
+    qtmux.link(sink)
 
     source.connect("pad-added", on_pad_added, streammux)
 
@@ -230,6 +279,9 @@ def main():
             tracker,
             nvvidconv,
             nvosd,
+            encoder,
+            h264parse,
+            qtmux,
             sink,
         ]:
             state_return = element.get_state(0)
