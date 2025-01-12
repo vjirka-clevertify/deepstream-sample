@@ -162,7 +162,7 @@ def main():
 
     source.set_property(
         "uri",
-        "file:///opt/nvidia/deepstream/deepstream-6.3/deepstream_test1.mp4",
+        "file:///opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/deepstream_test1.mp4",
     )
     streammux.set_property("width", 1920)
     streammux.set_property("height", 1080)
@@ -170,8 +170,10 @@ def main():
     streammux.set_property("live-source", 0)
     streammux.set_property("nvbuf-memory-type", 0)
     streammux.set_property("frame-duration", 33333333)
-    pgie.set_property("config-file-path", "config/config_infer_primary.txt")
-    tracker.set_property("ll-config-file", "config/tracker_config.txt")
+    pgie.set_property(
+        "config-file-path",
+        "/opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/config/config_infer_primary.txt",
+    )
 
     pipeline.add(source)
     pipeline.add(streammux)
