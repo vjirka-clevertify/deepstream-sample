@@ -142,6 +142,29 @@ def main():
     ret = pipeline.set_state(Gst.State.PLAYING)
     if ret == Gst.StateChangeReturn.FAILURE:
         print("Unable to set the pipeline to playing state")
+        bus = pipeline.get_bus()
+        msg = bus.poll(Gst.MessageType.ERROR, 0)
+        if msg:
+            err, debug = msg.parse_error()
+            print(f"Pipeline error: {err}")
+            print(f"Debug info: {debug}")
+
+        # Check individual element states
+        for element in [
+            source,
+            streammux,
+            pgie,
+            tracker,
+            nvvidconv,
+            nvosd,
+            sink,
+        ]:
+            state_return = element.get_state(0)
+            print(
+                f"Element {element.get_name()}: State={state_return[1]}, "
+                f"Pending={state_return[2]}, Return={state_return[0]}"
+            )
+
         return -1
     elif ret == Gst.StateChangeReturn.ASYNC:
         print("Pipeline is changing state asynchronously...")
