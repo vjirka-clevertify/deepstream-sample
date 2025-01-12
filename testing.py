@@ -211,7 +211,7 @@ def main():
 
     source.set_property(
         "uri",
-        "file:///opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/deepstream_test1.mp4",
+        "file:///opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/deepstream_test2.mp4",
     )
     streammux.set_property("width", 960)
     streammux.set_property("height", 544)
