@@ -1,7 +1,9 @@
+[tracker]
 tracker-width=1920
 tracker-height=1080
 gpu-id=0
 
+[parameters]
 [tracker-config]
 tracker-type=iou
 match-threshold=0.4
