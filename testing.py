@@ -18,6 +18,7 @@ class VehicleTracker:
         self.frame_rate = 30.0
         self.real_world_width = 15.0
         self.pixels_per_meter = 50.0
+        self.max_tracking_history = 30
 
     def calculate_speed(self, positions, time_diff):
         if len(positions) < 2:
@@ -39,6 +40,8 @@ class VehicleTracker:
             speed = self.calculate_speed(self.vehicles[obj_id], time_diff)
             if speed:
                 self.speeds[obj_id].append(speed)
+        if len(self.vehicles[obj_id]) > self.max_tracking_history:
+            self.vehicles[obj_id].pop(0)
 
 
 def osd_sink_pad_buffer_probe(pad, info, u_data):
