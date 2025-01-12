@@ -98,10 +98,10 @@ def main():
 
     source.set_property(
         "uri",
-        "file:///opt/nvidia/deepstream/deepstream-6.3/samples/streams/sample_720p.h264",
+        "file:///opt/nvidia/deepstream/deepstream-6.3/deepstream_test1.mp4",
     )
-    streammux.set_property("width", 1280)
-    streammux.set_property("height", 720)
+    streammux.set_property("width", 1920)
+    streammux.set_property("height", 1080)
     streammux.set_property("batch-size", 1)
     streammux.set_property("live-source", 0)
     streammux.set_property("nvbuf-memory-type", 0)
