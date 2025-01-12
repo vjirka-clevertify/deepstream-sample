@@ -7,6 +7,7 @@ batch-size=1
 process-mode=1
 model-color-format=0
 network-mode=2
+network-input-shape=1;3;720;1280
 num-detected-classes=4
 interval=0
 gie-unique-id=1
@@ -17,9 +18,9 @@ custom-lib-path=/opt/nvidia/deepstream/deepstream-6.3/lib/libnvds_infercustompar
 
 [class-attrs-all]
 pre-cluster-threshold=0.2
-roi-top-offset=0
+roi-top-offset=0 
 roi-bottom-offset=0
-detected-min-w=4
-detected-min-h=4
-detected-max-w=700
-detected-max-h=700
+detected-min-w=24
+detected-min-h=24
+detected-max-w=640
+detected-max-h=360

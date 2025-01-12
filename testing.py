@@ -97,11 +97,15 @@ def main():
         return -1
 
     source.set_property(
-        "uri", "file:///opt/nvidia/deepstream/deepstream-6.3/video.mp4"
+        "uri",
+        "file:///opt/nvidia/deepstream/deepstream-6.3/samples/streams/sample_720p.h264",
     )
-    streammux.set_property("width", 1920)
-    streammux.set_property("height", 1080)
+    streammux.set_property("width", 1280)
+    streammux.set_property("height", 720)
     streammux.set_property("batch-size", 1)
+    streammux.set_property("live-source", 0)
+    streammux.set_property("nvbuf-memory-type", 0)
+    streammux.set_property("frame-duration", 33333333)
     pgie.set_property("config-file-path", "config/config_infer_primary.txt")
     tracker.set_property("ll-config-file", "config/tracker_config.txt")
 
