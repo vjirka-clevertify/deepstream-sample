@@ -7,6 +7,7 @@ import pyds
 import numpy as np
 from collections import defaultdict
 import os
+import signal
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GObject, Gst, GLib
@@ -73,13 +74,18 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                 )
                 display_meta.num_labels = 1
 
-                # Configure text parameters
+                # Configure text parameters with type checking
                 txt_params = display_meta.text_params[0]
                 txt_params.display_text = (
                     f"ID:{obj_meta.object_id} {speed:.1f}km/h"
                 )
-                txt_params.x_offset = int(obj_meta.rect_params.left)
-                txt_params.y_offset = int(obj_meta.rect_params.top - 10)
+
+                # Ensure positive coordinates for text position
+                x_pos = max(0, int(obj_meta.rect_params.left))
+                y_pos = max(10, int(obj_meta.rect_params.top))
+
+                txt_params.x_offset = x_pos
+                txt_params.y_offset = y_pos
                 txt_params.font_params.font_name = "Arial"
                 txt_params.font_params.font_size = 11
                 txt_params.font_params.font_color.set(1.0, 1.0, 0.0, 1.0)
@@ -305,13 +311,22 @@ def main():
             return -1
 
     print("Entering main loop...")
+
+    def signal_handler(sig, frame):
+        print("Caught Ctrl+C, cleaning up...")
+        loop.quit()
+        pipeline.set_state(Gst.State.NULL)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
     try:
         loop.run()
     except KeyboardInterrupt:
-        pass
-    print("Exiting main loop...")
-    pipeline.set_state(Gst.State.NULL)
-    print("Pipeline stopped.")
+        print("Interrupted by user")
+    finally:
+        print("Cleaning up...")
+        pipeline.set_state(Gst.State.NULL)
+        loop.quit()
 
 
 def on_pad_added(element, pad, data):
