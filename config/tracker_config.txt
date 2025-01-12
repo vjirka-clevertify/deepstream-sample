@@ -1,7 +1,6 @@
 tracker-width=1920
 tracker-height=1080
 gpu-id=0
-enable-batch-process=1
 
 [tracker-config]
 tracker-type=iou
