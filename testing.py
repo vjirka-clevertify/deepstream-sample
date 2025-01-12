@@ -99,10 +99,16 @@ def configure_tracker(tracker):
     if not os.path.exists(tracker_lib):
         raise RuntimeError(f"Tracker library not found: {tracker_lib}")
 
-    tracker.set_property("ll-lib-file", tracker_lib)
-    tracker.set_property("ll-config-file", "config/tracker_config.txt")
-    tracker.set_property("enable-batch-process", True)
-    tracker.set_property("enable-past-frame", 1)
+    try:
+        tracker.set_property("ll-lib-file", tracker_lib)
+        tracker.set_property("ll-config-file", "config/tracker_config.txt")
+        tracker.set_property("enable-past-frame", 1)
+
+        print(f"Tracker configured with library: {tracker_lib}")
+        print("Tracker properties set successfully")
+
+    except Exception as e:
+        raise RuntimeError(f"Failed to set tracker properties: {e}")
 
 
 def get_state_name(state):
