@@ -278,19 +278,3 @@ def bus_call(bus, message, loop):
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-def on_pad_added(element, pad, data):
-    caps = pad.get_current_caps()
-    if not caps:
-        return
-
-    str_name = caps.get_structure(0).get_name()
-    if str_name.startswith("video/"):
-        sinkpad = data.get_request_pad("sink_0")
-        if not pad.link(sinkpad) == Gst.PadLinkReturn.OK:
-            print("Failed to link video pad")
-
-
-if __name__ == "__main__":
-    sys.exit(main())
