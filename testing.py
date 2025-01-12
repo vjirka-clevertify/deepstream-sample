@@ -101,8 +101,10 @@ def configure_tracker(tracker):
 
     try:
         tracker.set_property("ll-lib-file", tracker_lib)
-        tracker.set_property("ll-config-file", "config/tracker_config.txt")
-        tracker.set_property("enable-past-frame", 1)
+        tracker.set_property(
+            "ll-config-file",
+            f"{DS_PATH}/deepstream-sample/config/tracker_config.txt",
+        )
 
         print(f"Tracker configured with library: {tracker_lib}")
         print("Tracker properties set successfully")
