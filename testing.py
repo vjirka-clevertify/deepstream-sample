@@ -170,10 +170,10 @@ def main():
     streammux.set_property("live-source", 0)
     streammux.set_property("nvbuf-memory-type", 0)
     streammux.set_property("frame-duration", 33333333)
-    # pgie.set_property(
-    #     "config-file-path",
-    #     "/opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/config/config_infer_primary.txt",
-    # )
+    pgie.set_property(
+        "config-file-path",
+        "/opt/nvidia/deepstream/deepstream-6.3/deepstream-sample/config/config_infer_primary.txt",
+    )
 
     pipeline.add(source)
     pipeline.add(streammux)
