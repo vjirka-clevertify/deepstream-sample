@@ -13,12 +13,22 @@ gie-unique-id=1
 cluster-mode=2
 maintain-aspect-ratio=1
 parse-bbox-func-name=NvDsInferParseDefault
+nms-iou-threshold=0.6
+overlap-threshold=0.5
 
 [class-attrs-all]
 pre-cluster-threshold=0.2
+overlap-min-area=0.4
+cluster-min-boxes=1
 roi-top-offset=0 
 roi-bottom-offset=0
 detected-min-w=16
 detected-min-h=16
 detected-max-w=960
 detected-max-h=544
+
+[anchor-box-config]
+num-anchors=3
+anchor-scale-x=1.0
+anchor-scale-y=1.0
+anchors=12;16;19;36;40;28

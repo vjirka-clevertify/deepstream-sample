@@ -6,11 +6,11 @@ gpu-id=0
 [parameters]
 [tracker-config]
 tracker-type=iou
-match-threshold=0.2
-iou-threshold=0.4
+match-threshold=0.5
+iou-threshold=0.5
 min-frames-before-unassign=5
 max-frames-before-remove=60
-min-detection-confidence=0.1
+min-detection-confidence=0.25
 past-frames-trajectory-count=30
 kalman-smoothing-enabled=1
 kalman-process-noise-coefficients=0.1
