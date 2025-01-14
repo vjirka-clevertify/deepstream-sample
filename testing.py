@@ -8,6 +8,8 @@ import numpy as np
 from collections import defaultdict
 import os
 import signal
+import configparser
+from typing import Dict, Any
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GObject, Gst, GLib
@@ -114,41 +116,51 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
     return Gst.PadProbeReturn.OK
 
 
-def print_tracker_settings(tracker):
-    """Print tracker configuration parameters using GStreamer properties."""
+def read_tracker_config(config_file: str) -> Dict[str, Dict[str, Any]]:
+    """Read tracker configuration file and return as nested dict."""
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
-    # List of tracker properties to check
-    tracker_props = [
-        "ll-config-file",
-        "ll-lib-file",
-        "enable-batch-process",
-        "enable-past-frame",
-        "display-tracking-id",
-        "tracker-width",
-        "tracker-height",
-        "gpu-id",
-        "tracker-type",
-        "match-threshold",
-        "iou-threshold",
-    ]
+    result = {}
+    for section in config.sections():
+        result[section] = dict(config[section])
+    return result
 
-    print("=== Tracker Properties ===")
-    for prop in tracker_props:
-        try:
-            value = tracker.get_property(prop)
-            print(f"{prop}: {value}")
-        except Exception as e:
-            print(f"Could not get property '{prop}': {e}")
 
-    # Get all available properties
-    print("\n=== All Available Properties ===")
+def verify_tracker_settings(tracker, config_file: str):
+    """Compare configured vs runtime tracker settings."""
+    # Read config
+    config = read_tracker_config(config_file)
+
+    print("=== Configured vs Runtime Settings ===\n")
+
+    # Print config file values
+    print("Configuration File Settings:")
+    for section, params in config.items():
+        print(f"\n[{section}]")
+        for key, value in params.items():
+            print(f"{key}: {value}")
+
+    # Print runtime properties
+    print("\nRuntime Tracker Properties:")
     props = tracker.list_properties()
+    runtime_props = {}
     for prop in props:
         try:
             value = tracker.get_property(prop.name)
-            print(f"{prop.name}: {value}")
-        except Exception as e:
-            print(f"Could not get property '{prop.name}': {e}")
+            runtime_props[prop.name] = value
+            print(f"{prop.name}: {value} ({prop.value_type.name})")
+        except:
+            continue
+
+    # Compare values where possible
+    print("\nProperty Comparison:")
+    for section, params in config.items():
+        for key, configured_value in params.items():
+            if key in runtime_props:
+                print(f"{key}:")
+                print(f"  Configured: {configured_value}")
+                print(f"  Runtime   : {runtime_props[key]}")
 
 
 def setup_environment():
@@ -280,7 +292,8 @@ def main():
     # Set state with timeout and verification
     print("Setting pipeline state to PLAYING...")
     ret = pipeline.set_state(Gst.State.PLAYING)
-    print_tracker_settings(tracker)
+    config_file = tracker.get_property("ll-config-file")
+    verify_tracker_settings(tracker, config_file)
     if ret == Gst.StateChangeReturn.FAILURE:
         print("Unable to set the pipeline to playing state")
         bus = pipeline.get_bus()
