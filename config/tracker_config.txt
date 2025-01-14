@@ -6,25 +6,25 @@ gpu-id=0
 [parameters]
 useColorNames=1
 useHog=1
-featureImgSizeLevel=5
-searchRegionPaddingScale=4.0
+featureImgSizeLevel=3
+searchRegionPaddingScale=12.0
 
 [tracker-config]
 tracker-type=dcf
-match-threshold=0.1
-iou-threshold=0.1
-min-frames-before-unassign=5
-max-frames-before-remove=150
-min-detection-confidence=0.1
-past-frames-trajectory-count=60
+match-threshold=0.05
+iou-threshold=0.05
+min-frames-before-unassign=2
+max-frames-before-remove=60
+min-detection-confidence=0.15
+past-frames-trajectory-count=20
 
-filterLr=0.15
-filterChannelWeightsLr=0.15
-gaussianSigma=0.7
-processNoiseVar4Loc=0.6
-processNoiseVar4Size=0.4
-processNoiseVar4Vel=0.8
-measurementNoiseVar4Detector=0.4
+filterLr=0.4
+filterChannelWeightsLr=0.4
+gaussianSigma=0.5
+processNoiseVar4Loc=4.0
+processNoiseVar4Size=1.2
+processNoiseVar4Vel=4.0
+measurementNoiseVar4Detector=0.2
 measurementNoiseVar4Tracker=0.3
 
 minMatchingScore4Overall=0.1
@@ -32,12 +32,12 @@ minMatchingScore4SizeSimilarity=0.1
 minMatchingScore4Iou=0.1
 minMatchingScore4VisualSimilarity=0.1
 matchingScoreWeight4VisualSimilarity=0.2
-matchingScoreWeight4SizeSimilarity=0.3
-matchingScoreWeight4Iou=0.5
+matchingScoreWeight4SizeSimilarity=0.2
+matchingScoreWeight4Iou=0.6
 
-minDetectorConfidence=0.1
+minDetectorConfidence=0.2
 minIouDiff4NewTarget=0.15
-probationAge=2
-earlyTerminationAge=15
-maxShadowTrackingAge=120
-minTrackerConfidence=0.1
+probationAge=1
+earlyTerminationAge=6
+maxShadowTrackingAge=40
+minTrackerConfidence=0.2
