@@ -67,6 +67,7 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
             if obj_meta.object_id in tracker.speeds:
                 speed = tracker.speeds[obj_meta.object_id][-1]
+                confidence = obj_meta.confidence
 
                 # Create display meta for this frame
                 display_meta = pyds.nvds_acquire_display_meta_from_pool(
@@ -75,6 +76,8 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                 display_meta.num_labels = 1
 
                 # Configure text parameters with type checking
+                txt_params = display_meta.text_params[0]
+                txt_params.display_text = f"ID:{obj_meta.object_id} {speed:.1f}km/h Conf:{confidence:.2f}"
                 txt_params = display_meta.text_params[0]
                 txt_params.display_text = (
                     f"ID:{obj_meta.object_id} {speed:.1f}km/h"
@@ -141,27 +144,6 @@ def configure_tracker(tracker):
 
     except Exception as e:
         raise RuntimeError(f"Failed to set tracker properties: {e}")
-
-
-def get_state_name(state):
-    state_names = {
-        Gst.State.VOID_PENDING: "VOID_PENDING",
-        Gst.State.NULL: "NULL",
-        Gst.State.READY: "READY",
-        Gst.State.PAUSED: "PAUSED",
-        Gst.State.PLAYING: "PLAYING",
-    }
-    return state_names.get(state, "UNKNOWN")
-
-
-def get_state_change_return(ret):
-    return_names = {
-        Gst.StateChangeReturn.SUCCESS: "SUCCESS",
-        Gst.StateChangeReturn.FAILURE: "FAILURE",
-        Gst.StateChangeReturn.ASYNC: "ASYNC",
-        Gst.StateChangeReturn.NO_PREROLL: "NO_PREROLL",
-    }
-    return return_names.get(ret, "UNKNOWN")
 
 
 def main():
@@ -269,29 +251,6 @@ def main():
             err, debug = msg.parse_error()
             print(f"Pipeline error: {err}")
             print(f"Debug info: {debug}")
-
-        # Check individual element states
-        for element in [
-            source,
-            streammux,
-            pgie,
-            tracker,
-            nvvidconv,
-            nvosd,
-            encoder,
-            h264parse,
-            qtmux,
-            sink,
-        ]:
-            state_return = element.get_state(0)
-            print(
-                f"Element {element.get_name()}:\n"
-                f"  Current State: {get_state_name(state_return[1])}\n"
-                f"  Pending State: {get_state_name(state_return[2])}\n"
-                f"  Return Status: \033[91m{get_state_change_return(state_return[0])}\033[0m"
-                if state_return[0] == Gst.StateChangeReturn.FAILURE
-                else f"  Return Status: {get_state_change_return(state_return[0])}"
-            )
 
         return -1
     elif ret == Gst.StateChangeReturn.ASYNC:
