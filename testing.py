@@ -115,46 +115,40 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
 
 def print_tracker_settings(tracker):
-    """
-    Print all attributes of the tracker object to verify loaded settings.
-    Args:
-        tracker: The tracker object from trafficcamnet
-    """
-    # Method 1: Using __dict__
-    print("=== Method 1: All object attributes ===")
-    for attr_name, attr_value in tracker.__dict__.items():
-        print(f"{attr_name}: {attr_value}")
+    """Print tracker configuration parameters using GStreamer properties."""
 
-    # Method 2: Using dir() to get all attributes including inherited ones
-    print("\n=== Method 2: All available attributes and methods ===")
-    for attr_name in dir(tracker):
-        if not attr_name.startswith("__"):  # Skip built-in attributes
-            try:
-                attr_value = getattr(tracker, attr_name)
-                # Only print if it's not a method
-                if not callable(attr_value):
-                    print(f"{attr_name}: {attr_value}")
-            except Exception as e:
-                print(f"Could not access {attr_name}: {e}")
-
-    # Method 3: Try to access specific config parameters we're interested in
-    print("\n=== Method 3: Specific tracker parameters ===")
-    params_to_check = [
-        "filterLr",
-        "searchRegionPaddingScale",
-        "match_threshold",
-        "processNoiseVar4Loc",
-        "minMatchingScore4Overall",
-        "tracker_type",
-        "min_frames_before_unassign",
+    # List of tracker properties to check
+    tracker_props = [
+        "ll-config-file",
+        "ll-lib-file",
+        "enable-batch-process",
+        "enable-past-frame",
+        "display-tracking-id",
+        "tracker-width",
+        "tracker-height",
+        "gpu-id",
+        "tracker-type",
+        "match-threshold",
+        "iou-threshold",
     ]
 
-    for param in params_to_check:
+    print("=== Tracker Properties ===")
+    for prop in tracker_props:
         try:
-            value = getattr(tracker, param, "Not found")
-            print(f"{param}: {value}")
+            value = tracker.get_property(prop)
+            print(f"{prop}: {value}")
         except Exception as e:
-            print(f"Could not access {param}: {e}")
+            print(f"Could not get property '{prop}': {e}")
+
+    # Get all available properties
+    print("\n=== All Available Properties ===")
+    props = tracker.list_properties()
+    for prop in props:
+        try:
+            value = tracker.get_property(prop.name)
+            print(f"{prop.name}: {value}")
+        except Exception as e:
+            print(f"Could not get property '{prop.name}': {e}")
 
 
 def setup_environment():
